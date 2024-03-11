@@ -1,0 +1,97 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+
+
+V.Local.sOrderNo.Declare(String)
+V.Local.sSql.Declare(String)
+
+F.ODBC.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+F.Intrinsic.Control.SelectCase(V.Caller.Hook)
+	F.Intrinsic.Control.Case(11560)
+		F.Intrinsic.Control.If(V.Caller.Switches,=,"O","OR",V.Caller.Switches,=,"H")
+			F.Intrinsic.Variable.SetProperty("GAB-CHK-1","PL",470)
+			F.Intrinsic.Variable.SetProperty("GAB-CHK-1","PT",532)
+			F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PL",487)
+			F.Intrinsic.Variable.SetProperty("GAB-LBL-1","PT",532)
+			V.Passed.GAB-LBL-1.Set("Pick List")
+			
+			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-CHK-1,"HIDE",0)
+			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-CHK-1,"LOCK",1)
+			F.Intrinsic.UI.ChangeCallerProperty(V.Passed.GAB-LBL-1,"HIDE",0)
+		F.Intrinsic.Control.EndIf
+		
+
+	F.Intrinsic.Control.Case(11565)
+		F.Intrinsic.Control.If(V.Caller.Switches,=,"O","OR",V.Caller.Switches,=,"H")
+			V.Local.sOrderNo.Set(V.Passed.000003.Trim)
+			F.Intrinsic.String.LPad(V.Local.sOrderNo,"0",7,V.Local.sOrderNo)
+			F.Intrinsic.String.Build("Select Flag_PickList from v_Order_Header Where Order_No = '{0}'",V.Local.sOrderNo,V.Local.sSql)
+			F.ODBC.Connection!conx.OpenLocalRecordsetRO("rst",V.Local.sSql)
+			F.Intrinsic.Control.If(V.ODBC.conx!rst.EOF,=,False)
+				F.Intrinsic.Control.If(V.ODBC.conx!rst.FieldValLTrim!Flag_PickList,=,"Y")
+					V.Passed.GAB-CHK-1.Set("Y")
+				F.Intrinsic.Control.Else
+					V.Passed.GAB-CHK-1.Set("N")
+				F.Intrinsic.Control.EndIf
+			F.Intrinsic.Control.EndIf
+		F.ODBC.conx!rst.Close
+		F.Intrinsic.Control.EndIf
+		
+
+F.Intrinsic.Control.EndSelect
+F.Intrinsic.Control.CallSub(Unload)
+
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3977_PIV_Quote_Flag.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub(Unload)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+F.Intrinsic.Control.SetErrorHandler("Unload_Err")
+F.Intrinsic.Control.ClearErrors
+
+V.Local.sError.Declare(String)
+
+
+
+F.ODBC.Connection!conx.Close
+F.Intrinsic.Control.End
+
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Unload_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3977_PIV_Quote_Flag.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Unload.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$SKT$}$5/8/2015 11:13:50 AM
+Program.Sub.Comments.End
+
